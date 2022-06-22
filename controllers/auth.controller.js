@@ -4,6 +4,11 @@ function getSignup(req, res){
      
 }
 
+function signup(req, res){
+
+
+}
+
 function getLogin(req, res){
 
     /// ... 
@@ -11,5 +16,6 @@ function getLogin(req, res){
 
 module.exports = {
     getSignup: getSignup,
-    getLogin: getLogin
+    getLogin: getLogin,
+    signup: signup
 }
