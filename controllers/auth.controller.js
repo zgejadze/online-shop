@@ -1,53 +1,89 @@
 const User = require("../models/user.model");
-const authUtil = require('../util/authentication');
+const authUtil = require("../util/authentication");
+
+const validation = require("../util/validation"); // validation for user inupt input
 
 function getSignup(req, res) {
   res.render("customer/auth/signup");
 }
 
-async function signup(req, res) {
+async function signup(req, res, next) {
+  if (
+    !validation.userDetailsAreValid(
+      req.body.email,
+      req.body.password,
+      req.body["full-name"],
+      req.body.street,
+      req.body.postal,
+      req.body.city
+    ) ||
+    !validation.emailIsConfirmed(req.body.email, req.body["confirm-email"])
+  ) {
+    res.redirect("/signup");
+    return;
+  }
+
   const user = new User(
     req.body.email,
     req.body.password,
-    req.body['full-name'],
+    req.body["full-name"],
     req.body.street,
     req.body.postal,
     req.body.city
   );
 
-  await user.signup()
+  try {
+    const existsAlready = await user.userExistsAlready();
+    
+    if (existsAlready) {
+      res.redirect("/signup");
+      return;
+    }
 
-  res.redirect('/login')
-}
-
-function getLogin(req, res) {
-  res.render("customer/auth/login")
-}
-
-async function login (req, res) {
-  const user = new User(req.body.email, req.body.password)
-  const existingUser = await user.getUserWithSameEmail()
-
-  if(!existingUser){
-    res.redirect('/login')
+    await user.signup();
+  } catch (error) {
+    next(error);
     return;
   }
 
-  const passwordIsCorrect = await user.hasMatchingPassword(existingUser.password);
-  if(!passwordIsCorrect){
-    res.redirect('/login');
+  res.redirect("/login");
+}
+
+function getLogin(req, res, next) {
+  res.render("customer/auth/login");
+}
+
+async function login(req, res) {
+  const user = new User(req.body.email, req.body.password);
+  let existingUser;
+  try {
+    existingUser = await user.getUserWithSameEmail();
+  } catch (error) {
+    next(error);
     return;
   }
 
-  authUtil.createUserSession(req, existingUser, function(){
-    res.redirect('/')
-  })
-  
+  if (!existingUser) {
+    res.redirect("/login");
+    return;
+  }
+
+  const passwordIsCorrect = await user.hasMatchingPassword(
+    existingUser.password
+  );
+  if (!passwordIsCorrect) {
+    res.redirect("/login");
+    return;
+  }
+
+  authUtil.createUserSession(req, existingUser, function () {
+    res.redirect("/");
+  });
 }
 
-function logout(req, res){
+function logout(req, res) {
   authUtil.destroyUserAuthSession(req);
-  res.redirect('/login');
+  res.redirect("/login");
 }
 
 module.exports = {
@@ -55,5 +91,5 @@ module.exports = {
   getLogin: getLogin,
   signup: signup,
   login: login,
-  logout: logout
+  logout: logout,
 };
