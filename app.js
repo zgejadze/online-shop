@@ -8,6 +8,7 @@ const createSessionConfig = require('./config/session')
 
 const db = require("./data/database");
 const addCsrfTokenMiddlware = require('./middlewares/csrf-token')
+const protectRoutes = require('./middlewares/protect-routes') // middleware to restrict routes to some users
 
 const productsRoutes = require("./routes/product.routes"); //routes related to products
 const baseRoutes = require("./routes/base.routes"); //basic routes
@@ -43,6 +44,7 @@ app.use(checkAuthStatusMiddlware);
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(productsRoutes);
+app.use(protectRoutes); // midleware to restrict routes to some users
 app.use('/admin',adminRoutes);
 
 
