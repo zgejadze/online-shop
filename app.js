@@ -9,6 +9,7 @@ const createSessionConfig = require('./config/session')
 const db = require("./data/database");
 const addCsrfTokenMiddlware = require('./middlewares/csrf-token')
 const protectRoutes = require('./middlewares/protect-routes') // middleware to restrict routes to some users
+const cartMiddleware = require('./middlewares/cart')
 
 const productsRoutes = require("./routes/product.routes"); //routes related to products
 const baseRoutes = require("./routes/base.routes"); //basic routes
@@ -38,6 +39,8 @@ app.use(expressSession(sessionConfig))
 //protection against csrf attacks
 app.use(csrf());
 app.use(addCsrfTokenMiddlware) //  middleware to add csrf token to locals 
+
+app.use(cartMiddleware);
 
 app.use(checkAuthStatusMiddlware);
 
