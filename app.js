@@ -15,6 +15,7 @@ const productsRoutes = require("./routes/product.routes"); //routes related to p
 const baseRoutes = require("./routes/base.routes"); //basic routes
 const authRoutes = require("./routes/auth.routes"); //routes related to authentification
 const adminRoutes = require("./routes/admin.routes"); //admin routes
+const cartRoutes = require('./routes/cart.routes');
 
 
 
@@ -31,6 +32,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static("public"));
 app.use('/product/assets', express.static('product-data'))
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 //creates sessions
 const sessionConfig = createSessionConfig()
@@ -47,6 +49,7 @@ app.use(checkAuthStatusMiddlware);
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(productsRoutes);
+app.use('/cart', cartRoutes)
 app.use(protectRoutes); // midleware to restrict routes to some users
 app.use('/admin',adminRoutes);
 
