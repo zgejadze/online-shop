@@ -7,9 +7,6 @@
     <%- include('../../shared/includes/header') %> 
     <main>
         <h1>Your cart</h1>
-        <% if(!locals.cart.items) { %> 
-            <h2>No items in cart yet!</h2>
-            <% } else { %> 
         <ul id="cart-items">
             <li>
                 <% for(const cartItem of locals.cart.items) {%> 
@@ -22,6 +19,5 @@
 
             <button class="btn">Buy Now</button>
         </divi>
-        <% } %> 
     </main>
 <%- include('../../shared/includes/footer') %> 
