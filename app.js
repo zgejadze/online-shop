@@ -56,8 +56,6 @@ if (process.env.PORT) {
   port = process.env.PORT;
 }
 
-app.listen(port);
-
 db.connectToDatabase()
   .then(function () {
     app.listen(port);

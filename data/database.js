@@ -16,7 +16,7 @@ async function connectToDatabase() {
 
 function getDb() {
     if(!database){
-        throw new Error('database connectin not established');
+        throw new Error('database connection not established');
     }
 
     return database;
