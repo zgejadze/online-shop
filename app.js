@@ -1,65 +1,60 @@
-const path = require("path");
-const express = require("express");
+const path = require('path');
 
-const csrf = require("csurf");
+const express = require('express');
+const csrf = require('csurf');
+const expressSession = require('express-session');
 
-const expressSession = require('express-session')
-const createSessionConfig = require('./config/session')
-
-const db = require("./data/database");
-const addCsrfTokenMiddlware = require('./middlewares/csrf-token')
-const protectRoutes = require('./middlewares/protect-routes') // middleware to restrict routes to some users
-const cartMiddleware = require('./middlewares/cart')
-
-const productsRoutes = require("./routes/product.routes"); //routes related to products
-const baseRoutes = require("./routes/base.routes"); //basic routes
-const authRoutes = require("./routes/auth.routes"); //routes related to authentification
-const adminRoutes = require("./routes/admin.routes"); //admin routes
+const createSessionConfig = require('./config/session');
+const db = require('./data/database');
+const addCsrfTokenMiddleware = require('./middlewares/csrf-token');
+const errorHandlerMiddleware = require('./middlewares/error-handler');
+const checkAuthStatusMiddleware = require('./middlewares/check-auth');
+const protectRoutesMiddleware = require('./middlewares/protect-routes');
+const cartMiddleware = require('./middlewares/cart');
+const updateCartPricesMiddleware = require('./middlewares/update-cart-prices');
+const authRoutes = require('./routes/auth.routes');
+const productsRoutes = require('./routes/products.routes');
+const baseRoutes = require('./routes/base.routes');
+const adminRoutes = require('./routes/admin.routes');
 const cartRoutes = require('./routes/cart.routes');
-
-
-
-const checkAuthStatusMiddlware = require('./middlewares/check-auth')
-
-const errorHandlerMiddleware = require('./middlewares/error-handler')
+const ordersRoutes = require('./routes/orders.routes');
 
 const app = express();
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-app.use(express.static("public"));
-app.use('/product/assets', express.static('product-data'))
+app.use(express.static('public'));
+app.use('/products/assets', express.static('product-data'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-//creates sessions
-const sessionConfig = createSessionConfig()
-app.use(expressSession(sessionConfig))
+const sessionConfig = createSessionConfig();
 
-//protection against csrf attacks
+app.use(expressSession(sessionConfig));
 app.use(csrf());
-app.use(addCsrfTokenMiddlware) //  middleware to add csrf token to locals 
 
 app.use(cartMiddleware);
+app.use(updateCartPricesMiddleware);
 
-app.use(checkAuthStatusMiddlware);
+app.use(addCsrfTokenMiddleware);
+app.use(checkAuthStatusMiddleware);
 
 app.use(baseRoutes);
 app.use(authRoutes);
 app.use(productsRoutes);
-app.use('/cart', cartRoutes)
-app.use(protectRoutes); // midleware to restrict routes to some users
-app.use('/admin',adminRoutes);
-
+app.use('/cart', cartRoutes);
+app.use(protectRoutesMiddleware);
+app.use('/orders', ordersRoutes);
+app.use('/admin', adminRoutes);
 
 app.use(errorHandlerMiddleware);
-db.conectToDatabase()
+
+db.connectToDatabase()
   .then(function () {
     app.listen(3000);
   })
   .catch(function (error) {
-    console.log("failed to connect to the database!");
+    console.log('Failed to connect to the database!');
     console.log(error);
   });
