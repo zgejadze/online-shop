@@ -51,9 +51,16 @@ app.use('/admin',protectRoutesMiddleware, adminRoutes);
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware);
 
+let port = 3000;
+if (process.env.PORT) {
+  port = process.env.PORT;
+}
+
+app.listen(port);
+
 db.connectToDatabase()
   .then(function () {
-    app.listen(3000);
+    app.listen(port);
   })
   .catch(function (error) {
     console.log('Failed to connect to the database!');
