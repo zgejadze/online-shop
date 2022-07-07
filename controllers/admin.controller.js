@@ -1,9 +1,11 @@
 const Product = require('../models/product.model');
 const Order = require('../models/order.model');
+const cloudinary = require('../util/cloudinary')
 
 async function getProducts(req, res, next) {
   try {
     const products = await Product.findAll();
+
     res.render('admin/products/all-products', { products: products });
   } catch (error) {
     next(error);
@@ -22,6 +24,15 @@ async function createNewProduct(req, res, next) {
   });
 
   try {
+    const result = await cloudinary.uploader.upload(req.file.path,{
+      folder: 'products',
+      width: 320,
+      crop: "scale",
+    })
+    
+    product.image = result.public_id // sets name of image to same  name as in cloudinary storage
+    product.imageUrl = result.secure_url // URL for the image on cloudinary storage
+    console.log(product);
     await product.save();
   } catch (error) {
     next(error);
@@ -46,8 +57,20 @@ async function updateProduct(req, res, next) {
     _id: req.params.id,
   });
 
+  
   if (req.file) {
-    product.replaceImage(req.file.filename);
+    let result;
+    try {
+      result = await cloudinary.uploader.upload(req.file.path,{
+        folder: 'products',
+        width: 320,
+        crop: "scale",
+      })   
+    } catch (error) {
+      next(error);
+      return;
+    }
+    product.replaceImage(result.public_id, result.secure_url);
   }
 
   try {

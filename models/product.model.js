@@ -9,6 +9,7 @@ class Product {
     this.price = +productData.price;
     this.description = productData.description;
     this.image = productData.image; // the name of the image file
+    this.imageUrl = productData.imageUrl
     this.updateImageData();
     if (productData._id) {
       this.id = productData._id.toString();
@@ -62,8 +63,8 @@ class Product {
   }
 
   updateImageData() {
-    this.imagePath = `product-data/images/${this.image}`;
-    this.imageUrl = `/products/assets/images/${this.image}`;
+    this.imagePath = this.image;
+    this.imageUrl = this.imageUrl;
   }
 
   async save() {
@@ -73,6 +74,7 @@ class Product {
       price: this.price,
       description: this.description,
       image: this.image,
+      imageUrl: this.imageUrl
     };
 
     if (this.id) {
@@ -93,9 +95,9 @@ class Product {
     }
   }
 
-  replaceImage(newImage) {
+  replaceImage(newImage, newUrl) {
     this.image = newImage;
-    this.updateImageData();
+    this.imageUrl = newUrl
   }
 
   remove() {

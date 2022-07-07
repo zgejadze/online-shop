@@ -6,7 +6,6 @@ let mongodbUri = "mongodb://127.0.0.1:27017";
 if (process.env.MONGODB_URL) {
   mongodbUri = process.env.MONGODB_URL;
 }
-console.log(mongodbUri);
 
 function createSessionStore(session) {
   const MongoDbStore = mongoDbStore(expressSession);
