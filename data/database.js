@@ -10,7 +10,7 @@ if(process.env.MONGODB_URL){
 }
 
 async function connectToDatabase() {
-  const client = await mongoClient.connect(process.env.MONGODB_URL);
+  const client = await mongoClient.connect(mongodbUrl);
   database = client.db("online-shop");
 }
 
